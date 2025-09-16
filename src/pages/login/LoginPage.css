@@ -1,0 +1,222 @@
+/* Login.css - tema oscuro, limpio y consistente con PixPar */
+:root {
+  --bg: #0a0a0f;
+  --card: rgba(28,28,34,0.95);
+  --muted: #9ca3af;
+  --text: #e6eef8;
+  --accent: #22c55e; /* verde */
+  --accent2: #3b82f6; /* azul */
+  --danger: #ef4444;
+}
+
+.login-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(180deg, #050509 0%, #0a0a0f 100%);
+  padding: 1rem;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  color: var(--text);
+}
+
+/* Card */
+.login-card {
+  width: 420px;
+  max-width: calc(100% - 48px);
+  background: var(--card);
+  border: 1px solid rgba(255,255,255,0.04);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-top: -5%;
+  box-shadow: 0 12px 30px rgba(0,0,0,0.6);
+}
+
+/* Brand */
+.login-brand {
+  text-align: left;
+  margin-bottom: 0.75rem;
+}
+
+.logo {
+  font-weight: 800;
+  font-size: 1.25rem;
+  background: linear-gradient(90deg,#60a5fa,#c084fc);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.subtitle {
+  color: var(--muted);
+  font-size: 0.9rem;
+  margin-top: 6px;
+}
+
+/* Form fields */
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.label-text {
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+
+.input {
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.04);
+  color: var(--text);
+  padding: 10px 12px;
+  border-radius: 8px;
+  outline: none;
+  transition: box-shadow .15s ease, border-color .15s ease;
+  font-size: 0.95rem;
+}
+
+.input:focus {
+  border-color: rgba(59,130,246,0.9);
+  box-shadow: 0 6px 20px rgba(59,130,246,0.06);
+}
+
+/* small row helper */
+.row.spaced {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* checkbox label */
+.checkbox-label {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+/* show password button */
+.show-password-btn {
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+/* submit */
+.submit-btn {
+  margin-top: 4px;
+  background: linear-gradient(90deg, var(--accent2), #a855f7);
+  color: white;
+  border: none;
+  padding: 10px 12px;
+  border-radius: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: center;
+  transition: transform .12s ease, box-shadow .12s ease;
+}
+
+.submit-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* spinner simple */
+.spinner {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid rgba(255,255,255,0.25);
+  border-top-color: white;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* divider */
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--muted);
+  text-align: center;
+  margin: 6px 0;
+}
+
+.divider::before,
+.divider::after {
+  content: "";
+  height: 1px;
+  flex: 1;
+  background: rgba(255,255,255,0.03);
+}
+
+/* socials */
+.socials {
+  display:flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+.social-btn {
+  flex:1;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.04);
+  background: rgba(255,255,255,0.02);
+  color: var(--text);
+  cursor: pointer;
+  transition: all .12s ease;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.social-btn.google:hover { background: rgba(219,68,55,0.12); }
+.social-btn.github:hover { background: rgba(36,41,46,0.14); }
+
+/* link-like buttons */
+.link-btn {
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  text-decoration: underline;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+/* error box */
+.login-error {
+  background: rgba(239,68,68,0.08);
+  border: 1px solid rgba(239,68,68,0.15);
+  color: #fecaca;
+  padding: 8px 10px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+}
+
+/* signup row */
+.signup {
+  margin-top: 6px;
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+/* Responsive */
+@media (max-width: 520px) {
+  .login-card { width: 100%; padding: 1rem; }
+  .carousel-arrow.left { left: -10px; }
+  .carousel-arrow.right { right: -10px; }
+}

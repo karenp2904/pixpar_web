@@ -1,0 +1,70 @@
+.batch-editor {
+  display: grid;
+  grid-template-columns: 1fr 2fr 1fr;
+  height: 100vh;
+  background: #0a0a0f;
+  color: #f3f4f6;
+  overflow: hidden;
+  gap: 1rem;
+  padding: 1rem;
+  box-sizing: border-box;
+}
+
+/* === Columna Izquierda === */
+.left-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  background: #1e1e1e;
+  border-radius: 12px;
+  padding: 1rem;
+  overflow-y: auto;
+}
+
+/* === Imagen Central === */
+.center-panel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #1e1e1e;
+  border-radius: 12px;
+  padding: 1rem;
+}
+
+.center-panel img {
+  max-width: 100%;
+  max-height: 90%;
+  object-fit: cover;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.6);
+}
+
+/* === Galería Derecha === */
+.right-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  background: #1e1e1e;
+  border-radius: 12px;
+  padding: 0.8rem;
+  overflow-y: auto;
+}
+
+/* Desactivar scroll de la ventana principal */
+body, html {
+  overflow: hidden;
+  margin: 0;
+  height: 100%;
+}
+
+final-apply-btn{
+  flex: 1;
+  background: linear-gradient(135deg, #60a5fa, #c084fc);
+  border: 1px solid #416864;
+  border-radius: 8px;
+  padding: 0.3rem 0.5rem;
+  color: #cbd5e1;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}

@@ -1,0 +1,122 @@
+/* SelectorTipoEdicion.css */
+
+.selector-container {
+  background: linear-gradient(180deg, #0a0a0f 0%, #0d0d14 100%);
+  min-height: 88vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.selector-card {
+  background: rgba(28, 28, 34, 0.8);
+  border: 1px solid rgba(243, 244, 246, 0.1);
+  border-radius: 1rem;
+  padding: 2rem 3rem;
+  max-width: 900px;
+  width: 100%;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+}
+
+.selector-header h2 {
+  background: linear-gradient(to right, #60a5fa, #c084fc);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-size: 2rem;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 0.5rem;
+}
+
+.selector-header p {
+  color: rgba(156, 163, 175, 1);
+  font-size: 1rem;
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.selector-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+}
+
+.selector-option {
+  background: rgba(28, 28, 34, 0.7);
+  border: 1px solid rgba(243, 244, 246, 0.1);
+  border-radius: 1rem;
+  padding: 2rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(6px);
+}
+
+.selector-option:hover {
+  border-color: rgba(96, 165, 250, 0.3);
+  transform: translateY(-4px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.selector-option-icon {
+  width: 7rem;
+  height: 5rem;
+  border-radius: 50%;
+  background: rgba(96, 165, 250, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+}
+
+.selector-option h4 {
+  color: #f3f4f6;
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+}
+
+.selector-option p {
+  color: rgba(156, 163, 175, 1);
+  font-size: 0.95rem;
+  text-align: justify; /* ✅ Justificado */
+  margin-bottom: 1.25rem;
+    margin: 0.7rem;
+
+}
+
+.selector-button {
+  background: linear-gradient(to right, #60a5fa, #c084fc);
+  color: white;
+  padding: 0.6rem 1rem;
+  border-radius: 0.5rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  text-decoration: none;
+  text-align: center;
+  display: inline-block;
+  transition: transform 0.2s ease, box-shadow 0.3s ease;
+}
+
+.selector-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(96, 165, 250, 0.4);
+}
+
+/* Responsivo */
+@media (max-width: 768px) {
+  .selector-card {
+    padding: 1.5rem 1.5rem;
+  }
+
+  .selector-header h2 {
+    font-size: 1.75rem;
+  }
+}
