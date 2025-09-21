@@ -1,0 +1,96 @@
+.transform-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  background: #1e1e1e;
+  border-radius: 12px;
+  padding: 1rem;
+  color: #f3f4f6;
+  font-size: 0.9rem;
+}
+
+/* Contenedor para dos transformaciones en la misma fila */
+.inline-group {
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* dos columnas iguales */
+  gap: 0.8rem;
+  align-items: center;
+}
+
+/* Cada control individual */
+.control {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  background: #2a2a2a;
+  padding: 0.6rem;
+  border-radius: 8px;
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.3);
+}
+
+.control label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #d1d5db;
+}
+
+/* Sliders más compactos */
+.control input[type="range"] {
+  width: 100%;
+  height: 4px;
+  background: #3b3b3b;
+  border-radius: 2px;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.control input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #60a5fa;
+  cursor: pointer;
+}
+
+.control input[type="number"] {
+  width: 100%;
+  background: #111;
+  border: 1px solid #333;
+  border-radius: 4px;
+  padding: 0.2rem;
+  color: #f3f4f6;
+  font-size: 0.8rem;
+  text-align: center;
+}
+
+/* Encabezados (h3) más compactos */
+.transform-controls h3 {
+  margin: 0.5rem 0 0.2rem;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #93c5fd;
+}
+
+/* Navegación de galería */
+.gallery-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 1rem;
+}
+
+.gallery-nav .nav-btn {
+  background: #374151;
+  border: none;
+  color: #e5e7eb;
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.gallery-nav .nav-btn:hover {
+  background: #4b5563;
+}

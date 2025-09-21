@@ -6,32 +6,30 @@ import "./BatchEditor.css";
 import type { SelectedImage } from "../../components/editor/extra/BatchImageSelector";
 import SelectedGallery from "../../components/editor/extra/SelectedGallery";
 import transformService from "../../services/transformService";
-import type { TransformState } from "../../services/xml/xmlBuilder";
 import type TransformValues from "../../services/Interface/trasnforms";
-
-
 
 const BatchEditor: React.FC = () => {
   const [images, setImages] = useState<SelectedImage[]>([]);
   const [selectedImageIndex, setSelectedImageIndex] = useState<number>(0);
-  const [transformations, setTransformations] = useState<Record<string, TransformState>>({});
-
-  const selectedImage = images[selectedImageIndex] || null;
-
+  const [transformations, setTransformations] = useState<Record<string, TransformValues>>({});
   const [isSending, setIsSending] = useState<boolean>(false);
   const [serverResponse, setServerResponse] = useState<string | null>(null);
 
+  const selectedImage = images[selectedImageIndex] || null;
+
+  /** Selección inicial de imágenes */
   const handleImageSelection = (newImages: SelectedImage[]) => {
     setImages(newImages);
     setSelectedImageIndex(0);
   };
 
+  /** Remueve imagen y sus transformaciones */
   const handleRemoveImage = (id: string) => {
     const updated = images.filter((img) => img.id !== id);
     setImages(updated);
     setTransformations((prev) => {
       const copy = { ...prev };
-      delete copy[id]; // elimina transformaciones de la imagen removida
+      delete copy[id];
       return copy;
     });
     if (selectedImage?.id === id) {
@@ -39,20 +37,10 @@ const BatchEditor: React.FC = () => {
     }
   };
 
-  const handleTransformChange = (newTransform: TransformState) => {
+  /** Actualiza transformaciones para la imagen seleccionada */
+  const handleTransformChange = (newTransform: TransformValues) => {
     if (!selectedImage) return;
-
-    // Map TransformState to TransformValues, ensuring all required properties are present
-    const transformValues: TransformValues = {
-      grayscale: (newTransform as any).grayscale ?? false,
-      flipH: (newTransform as any).flipH ?? false,
-      flipV: (newTransform as any).flipV ?? false,
-      blur: (newTransform as any).blur ?? 0,
-      sharpen: (newTransform as any).sharpen ?? 0,
-      ...newTransform
-    };
-
-    transformService.saveTransform(selectedImage.id, transformValues); // Guarda en el service
+    transformService.saveTransform(selectedImage.id, newTransform);
 
     setTransformations((prev) => ({
       ...prev,
@@ -60,13 +48,17 @@ const BatchEditor: React.FC = () => {
     }));
   };
 
+  /** Aplica solo a la imagen actual */
   const handleApplyCurrent = async () => {
     if (!selectedImage) return;
     try {
       setIsSending(true);
       setServerResponse(null);
 
-      const xmlText = await transformService.applyTransformForImage(selectedImage.id);
+      const xmlText = await transformService.applyTransformForImage(
+        selectedImage.id,
+        transformations[selectedImage.id] // pasar transformaciones actuales
+      );
       setServerResponse(xmlText);
     } catch (error) {
       console.error("❌ Error al aplicar transformaciones:", error);
@@ -76,12 +68,20 @@ const BatchEditor: React.FC = () => {
     }
   };
 
+  /** Aplica todas las transformaciones y manda lista de imágenes + transformaciones */
   const handleApplyAll = async () => {
     try {
       setIsSending(true);
       setServerResponse(null);
 
-      const xmlText = await transformService.applyAllTransforms();
+      // ✅ Genera lista de imágenes con sus transformaciones
+      const payload = images.map((img) => ({
+        id: img.id,
+        src: img.src,
+        transform: transformations[img.id] || null,
+      }));
+
+      const xmlText = await transformService.applyAllTransforms(payload);
       setServerResponse(xmlText);
       setTransformations({});
     } catch (error) {
@@ -92,11 +92,9 @@ const BatchEditor: React.FC = () => {
     }
   };
 
-
-
   return (
     <div className="batch-editor">
-      {/* === CONTROLES (Izquierda) === */}
+      {/* === PANEL IZQUIERDO === */}
       <div className="left-panel">
         <TransformControls
           key={selectedImage?.id}
@@ -104,11 +102,7 @@ const BatchEditor: React.FC = () => {
           totalImages={images.length}
           onChangeImage={(newIndex) => setSelectedImageIndex(newIndex)}
           onTransformChange={handleTransformChange}
-          savedTransform={
-            selectedImage
-              ? (transformations[selectedImage.id] as TransformValues | undefined)
-              : undefined
-          }
+          savedTransform={selectedImage ? transformations[selectedImage.id] : undefined}
         />
 
         {images.length > 0 && (
@@ -118,7 +112,7 @@ const BatchEditor: React.FC = () => {
               onClick={handleApplyCurrent}
               disabled={isSending || !selectedImage}
             >
-              {isSending ? "⏳ Aplicando..." : " Aplicar a imagen actual"}
+              {isSending ? "⏳ Aplicando..." : "Aplicar a imagen actual"}
             </button>
 
             <button
@@ -126,26 +120,23 @@ const BatchEditor: React.FC = () => {
               onClick={handleApplyAll}
               disabled={isSending}
             >
-              {isSending ? "⏳ Aplicando..." : " Aplicar a todas las imágenes"}
+              {isSending ? "⏳ Aplicando..." : "Aplicar a todas las imágenes"}
             </button>
           </div>
         )}
 
-
         {/* === RESPUESTA DEL SERVIDOR === */}
         {serverResponse && (
-          <pre className="server-response">
-            {serverResponse}
-          </pre>
+          <pre className="server-response">{serverResponse}</pre>
         )}
       </div>
 
-      {/* === IMAGEN CENTRAL === */}
+      {/* === PANEL CENTRAL === */}
       <div className="center-panel">
         <SelectedImageForBatch image={selectedImage} />
       </div>
 
-      {/* === GALERÍA DERECHA === */}
+      {/* === PANEL DERECHO === */}
       <div className="right-panel">
         <BatchImageSelector onSelect={handleImageSelection} />
         <SelectedGallery

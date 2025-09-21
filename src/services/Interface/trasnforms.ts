@@ -4,13 +4,20 @@ export default interface TransformValues {
   saturation: number;
   rotation: number;
   format: string;
-  grayscale: boolean;
-  flipH: boolean;
-  flipV: boolean;
+  grayscale: number; // ahora SIEMPRE será un número (0-100)
   blur: number;
   sharpen: number;
-  resizeWidth?: number;
-  resizeHeight?: number;
-  crop?: { x: number; y: number; width: number; height: number };
-  watermarkText?: string;
+
+  // Recorte (x, y = posición inicial, width y height = tamaño del recorte)
+  crop?: { 
+    width: number; 
+    height: number; 
+  };
+
+  // Marca de agua
+  watermark?: {
+    text: string;   // Texto de la marca de agua
+    x: number;      // Posición horizontal
+    y: number;      // Posición vertical
+  };
 }

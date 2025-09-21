@@ -1,10 +1,5 @@
-export interface TransformState {
-  brightness: number;
-  contrast: number;
-  saturation: number;
-  rotation: number;
-  format: string;
-}
+
+import type TransformState from "../Interface/trasnforms";
 
 export function buildTransformXML(
   transformations: Record<string, TransformState>,

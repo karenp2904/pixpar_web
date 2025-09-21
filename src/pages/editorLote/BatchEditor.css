@@ -1,11 +1,12 @@
-.batch-editor {
+.batch-editor { 
   display: grid;
-  grid-template-columns: 1fr 2fr 1fr;
+  grid-template-columns: 400px 1.0fr 350px;
+  grid-template-rows: 1fr;
   height: 100vh;
   background: #0a0a0f;
   color: #f3f4f6;
   overflow: hidden;
-  gap: 1rem;
+  gap: 1.2rem;
   padding: 1rem;
   box-sizing: border-box;
 }
@@ -19,6 +20,18 @@
   border-radius: 12px;
   padding: 1rem;
   overflow-y: auto;
+  max-height: 100%;
+  scrollbar-width: thin;
+  scrollbar-color: #416864 #1e1e1e;
+}
+
+.left-panel::-webkit-scrollbar {
+  width: 6px;
+}
+
+.left-panel::-webkit-scrollbar-thumb {
+  background: #416864;
+  border-radius: 4px;
 }
 
 /* === Imagen Central === */
@@ -28,15 +41,21 @@
   justify-content: center;
   background: #1e1e1e;
   border-radius: 12px;
-  padding: 1rem;
+  padding: 1.5rem; /* 🔥 más espacio interior para la imagen */
+  overflow: hidden;
 }
 
 .center-panel img {
   max-width: 100%;
-  max-height: 90%;
-  object-fit: cover;
-  border-radius: 10px;
-  box-shadow: 0 0 10px rgba(0,0,0,0.6);
+  max-height: 95%; /* 🔥 permite usar casi toda la altura */
+  object-fit: contain; /* 🔥 evita que se recorte la imagen */
+  border-radius: 12px;
+  box-shadow: 0 0 14px rgba(0,0,0,0.7);
+  transition: transform 0.2s ease;
+}
+
+.center-panel img:hover {
+  transform: scale(1.02); /* 🔥 un pequeño zoom al pasar el mouse */
 }
 
 /* === Galería Derecha === */
@@ -48,6 +67,7 @@
   border-radius: 12px;
   padding: 0.8rem;
   overflow-y: auto;
+  max-height: 100%;
 }
 
 /* Desactivar scroll de la ventana principal */
@@ -57,14 +77,22 @@ body, html {
   height: 100%;
 }
 
-final-apply-btn{
+/* === Botón Final === */
+.final-apply-btn {
   flex: 1;
   background: linear-gradient(135deg, #60a5fa, #c084fc);
   border: 1px solid #416864;
-  border-radius: 8px;
-  padding: 0.3rem 0.5rem;
-  color: #cbd5e1;
-  font-weight: 500;
+  border-radius: 10px;
+  padding: 0.6rem 1rem;
+  color: #f3f4f6;
+  font-weight: 600;
   cursor: pointer;
+  text-align: center;
   transition: all 0.2s ease;
+  margin-top: 1rem;
+}
+
+.final-apply-btn:hover {
+  background: linear-gradient(135deg, #8b5cf6, #60a5fa);
+  transform: translateY(-2px);
 }

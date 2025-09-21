@@ -31,7 +31,7 @@ class TransformService {
     this.transforms = {};
   }
 
-    async applyTransformForImage(id: string): Promise<string> {
+    async applyTransformForImage(id: string, p0: TransformValues): Promise<string> {
     const transform = this.transforms[id];
     if (!transform) throw new Error(`No hay transformaciones para la imagen ${id}`);
     console.log(`Aplicando transform para [${id}]:`, transform);
@@ -53,7 +53,7 @@ class TransformService {
     return xmlText;
   }
 
-  async applyAllTransforms(): Promise<string> {
+  async applyAllTransforms(payload: { id: string; src: string; transform: TransformValues; }[]): Promise<string> {
     const xml = buildTransformXML(this.transforms, true);
     console.log(`Aplicando transform para `, this.transforms);
 

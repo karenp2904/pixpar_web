@@ -1,244 +1,285 @@
 import React, { useState, useEffect } from "react";
-import transformService from "../../../services/transformService";
-import "./TransformControls.css";
 import type TransformValues from "../../../services/Interface/trasnforms";
+import "./TransformControls.css";
+import FormatSelector from "../../../components/editor/extra/FormatSelector";
 
 interface TransformControlsProps {
   selectedImageIndex: number;
   totalImages: number;
-  savedTransform?: TransformValues;
-  onChangeImage: (newIndex: number) => void;
+  onChangeImage: (index: number) => void;
   onTransformChange: (values: TransformValues) => void;
+  savedTransform?: TransformValues;
 }
-
-const DEFAULT_VALUES: TransformValues = {
-  brightness: 0,
-  contrast: 0,
-  saturation: 0,
-  rotation: 0,
-  format: "png",
-  grayscale: false,
-  flipH: false,
-  flipV: false,
-  blur: 0,
-  sharpen: 0,
-};
 
 const TransformControls: React.FC<TransformControlsProps> = ({
   selectedImageIndex,
   totalImages,
-  savedTransform,
   onChangeImage,
   onTransformChange,
+  savedTransform,
 }) => {
   const [values, setValues] = useState<TransformValues>(
-    savedTransform || DEFAULT_VALUES
+    savedTransform || {
+      brightness: 0,
+      contrast: 0,
+      saturation: 0,
+      rotation: 0,
+      format: "JPG",
+      grayscale: 0,
+      blur: 0,
+      sharpen: 0,
+      crop: { width: 0, height: 0 },
+      watermark: { text: "", x: 0, y: 0 },
+    }
   );
 
+  // Sincroniza estado cuando llega un nuevo savedTransform
   useEffect(() => {
-    setValues(savedTransform || DEFAULT_VALUES);
+    setValues(
+      savedTransform || {
+        brightness: 0,
+        contrast: 0,
+        saturation: 0,
+        rotation: 0,
+        format: "JPG",
+        grayscale: 0,
+        blur: 0,
+        sharpen: 0,
+        crop: { width: 0, height: 0 },
+        watermark: { text: "", x: 0, y: 0 },
+      }
+    );
   }, [savedTransform]);
 
-  const handleChange = (key: keyof TransformValues, newValue: any) => {
-    const updated = { ...values, [key]: newValue };
-    setValues(updated);
-    onTransformChange(updated);
+  const updateValue = (key: keyof TransformValues, val: any) => {
+    setValues((prev) => ({ ...prev, [key]: val }));
   };
 
-  const handleReplicatePrevious = () => {
-    if (selectedImageIndex <= 0) return;
-    const all = transformService.getAllTransforms();
-    const prevId = Object.keys(all)[selectedImageIndex - 1];
-    if (prevId && all[prevId]) {
-      setValues(all[prevId]);
-      onTransformChange(all[prevId]);
-    }
-  };
+  //  Notifica al padre en cada cambio de cualquier valor
+  useEffect(() => {
+    onTransformChange(values);
+  }, [values, onTransformChange]);
 
+
+ 
   return (
     <div className="transform-controls">
-      <h3>Ajustes de Transformación</h3>
+      <h3>Transformaciones</h3>
 
-      {/* Escala de grises */}
-      <div className="control">
-        <label>
+      {/* === Grupo Brillo / Contraste === */}
+      <div className="inline-group">
+        <div className="control">
+          <label>Brillo</label>
           <input
-            type="checkbox"
-            checked={values.grayscale}
-            onChange={(e) => handleChange("grayscale", e.target.checked)}
+            type="range"
+            min={-100}
+            max={100}
+            value={values.brightness}
+            onChange={(e) => updateValue("brightness", Number(e.target.value))}
           />
-          Escala de grises
-        </label>
-      </div>
-
-      {/* Brillo / Contraste / Saturación */}
-      <div className="control">
-        <label>Brillo</label>
-        <input
-          type="range"
-          min="-100"
-          max="100"
-          value={values.brightness}
-          onChange={(e) => handleChange("brightness", Number(e.target.value))}
-        />
-        <span>{values.brightness}%</span>
-      </div>
-
-      <div className="control">
-        <label>Contraste</label>
-        <input
-          type="range"
-          min="-100"
-          max="100"
-          value={values.contrast}
-          onChange={(e) => handleChange("contrast", Number(e.target.value))}
-        />
-        <span>{values.contrast}%</span>
-      </div>
-
-      <div className="control">
-        <label>Saturación</label>
-        <input
-          type="range"
-          min="-100"
-          max="100"
-          value={values.saturation}
-          onChange={(e) => handleChange("saturation", Number(e.target.value))}
-        />
-        <span>{values.saturation}%</span>
-      </div>
-
-      {/* Rotación */}
-      <div className="control">
-        <label>Rotación</label>
-        <input
-          type="range"
-          min="0"
-          max="360"
-          value={values.rotation}
-          onChange={(e) => handleChange("rotation", Number(e.target.value))}
-        />
-        <span>{values.rotation}°</span>
-      </div>
-
-      {/* Reflejar */}
-      <div className="control">
-        <label>
           <input
-            type="checkbox"
-            checked={values.flipH}
-            onChange={(e) => handleChange("flipH", e.target.checked)}
+            type="number"
+            value={values.brightness}
+            onChange={(e) => updateValue("brightness", Number(e.target.value))}
           />
-          Reflejo Horizontal
-        </label>
-        <label>
+        </div>
+
+        <div className="control">
+          <label>Contraste</label>
           <input
-            type="checkbox"
-            checked={values.flipV}
-            onChange={(e) => handleChange("flipV", e.target.checked)}
+            type="range"
+            min={-100}
+            max={100}
+            value={values.contrast}
+            onChange={(e) => updateValue("contrast", Number(e.target.value))}
           />
-          Reflejo Vertical
-        </label>
-      </div>
-
-      {/* Desenfoque */}
-      <div className="control">
-        <label>Desenfoque</label>
-        <input
-          type="range"
-          min="0"
-          max="20"
-          value={values.blur}
-          onChange={(e) => handleChange("blur", Number(e.target.value))}
-        />
-      </div>
-
-      {/* Nitidez */}
-      <div className="control">
-        <label>Nitidez</label>
-        <input
-          type="range"
-          min="0"
-          max="10"
-          value={values.sharpen}
-          onChange={(e) => handleChange("sharpen", Number(e.target.value))}
-        />
-      </div>
-
-      {/* Redimensionar */}
-      <div className="control resize">
-        <label>Ancho</label>
-        <input
-          type="number"
-          min="1"
-          value={values.resizeWidth || ""}
-          onChange={(e) => handleChange("resizeWidth", Number(e.target.value))}
-        />
-        <label>Alto</label>
-        <input
-          type="number"
-          min="1"
-          value={values.resizeHeight || ""}
-          onChange={(e) => handleChange("resizeHeight", Number(e.target.value))}
-        />
-      </div>
-
-      {/* Texto / Marca de agua */}
-      <div className="control">
-        <label>Marca de agua</label>
-        <input
-          type="text"
-          placeholder="Escribe el texto"
-          value={values.watermarkText || ""}
-          onChange={(e) => handleChange("watermarkText", e.target.value)}
-        />
-      </div>
-
-      {/* Formato */}
-      <div className="format-selector">
-        <span>Formato</span>
-        <div className="format-buttons">
-          {["jpg", "png", "tif"].map((fmt) => (
-            <button
-              key={fmt}
-              className={values.format === fmt ? "active" : ""}
-              onClick={() => handleChange("format", fmt)}
-            >
-              {fmt.toUpperCase()}
-            </button>
-          ))}
+          <input
+            type="number"
+            value={values.contrast}
+            onChange={(e) => updateValue("contrast", Number(e.target.value))}
+          />
         </div>
       </div>
 
-      {/* Navegación */}
+      {/* === Saturación / Nitidez === */}
+      <div className="inline-group">
+        <div className="control">
+          <label>Saturación</label>
+          <input
+            type="range"
+            min={-100}
+            max={100}
+            value={values.saturation}
+            onChange={(e) => updateValue("saturation", Number(e.target.value))}
+          />
+          <input
+            type="number"
+            value={values.saturation}
+            onChange={(e) => updateValue("saturation", Number(e.target.value))}
+          />
+        </div>
+
+        <div className="control">
+          <label>Nitidez</label>
+          <input
+            type="range"
+            min={0}
+            max={100}
+            value={values.sharpen}
+            onChange={(e) => updateValue("sharpen", Number(e.target.value))}
+          />
+          <input
+            type="number"
+            value={values.sharpen}
+            onChange={(e) => updateValue("sharpen", Number(e.target.value))}
+          />
+        </div>
+      </div>
+
+      {/* === Desenfoque / Rotación === */}
+      <div className="inline-group">
+        <div className="control">
+          <label>Desenfoque</label>
+          <input
+            type="range"
+            min={0}
+            max={20}
+            value={values.blur}
+            onChange={(e) => updateValue("blur", Number(e.target.value))}
+          />
+          <input
+            type="number"
+            value={values.blur}
+            onChange={(e) => updateValue("blur", Number(e.target.value))}
+          />
+        </div>
+
+        <div className="control">
+          <label>Rotación</label>
+          <input
+            type="range"
+            min={-180}
+            max={180}
+            value={values.rotation}
+            onChange={(e) => updateValue("rotation", Number(e.target.value))}
+          />
+          <input
+            type="number"
+            value={values.rotation}
+            onChange={(e) => updateValue("rotation", Number(e.target.value))}
+          />
+        </div>
+      </div>
+
+      {/* === Crop XY / WH === */}
+      <h3>Recorte</h3>
+   
+
+      <div className="inline-group">
+        <div className="control">
+          <label>W</label>
+          <input
+            type="number"
+            value={values.crop?.width ?? 0}
+            onChange={(e) =>
+              updateValue("crop", {
+                ...values.crop,
+                width: Number(e.target.value),
+              })
+            }
+          />
+        </div>
+        <div className="control">
+          <label>H</label>
+          <input
+            type="number"
+            value={values.crop?.height ?? 0}
+            onChange={(e) =>
+              updateValue("crop", {
+                ...values.crop,
+                height: Number(e.target.value),
+              })
+            }
+          />
+        </div>
+      </div>
+
+      {/* === Marca de Agua === */}
+      <h3>Marca de Agua</h3>
+      <input
+        type="text"
+        placeholder="Texto..."
+        value={values.watermark?.text ?? ""}
+        onChange={(e) =>
+          updateValue("watermark", {
+            ...values.watermark,
+            text: e.target.value,
+          })
+        }
+      />
+
+      <div className="inline-group">
+        <div className="control">
+          <label>X</label>
+          <input
+            type="number"
+            value={values.watermark?.x ?? 0}
+            onChange={(e) =>
+              updateValue("watermark", {
+                ...values.watermark,
+                x: Number(e.target.value),
+              })
+            }
+          />
+        </div>
+        <div className="control">
+          <label>Y</label>
+          <input
+            type="number"
+            value={values.watermark?.y ?? 0}
+            onChange={(e) =>
+              updateValue("watermark", {
+                ...values.watermark,
+                y: Number(e.target.value),
+              })
+            }
+          />
+        </div>
+
+        
+      </div>
+
+      
+      <div className="format-wrapper">
+        <h4>Formato de Salida</h4>
+        <FormatSelector
+          selectedFormat={values.format}
+          onChange={(fmt) => updateValue("format", fmt)}
+        />
+      </div>
+
+    
+
+      {/* === Navegación de imágenes === */}
       <div className="gallery-nav">
         <button
           className="nav-btn"
-          disabled={selectedImageIndex <= 0}
           onClick={() => onChangeImage(selectedImageIndex - 1)}
+          disabled={selectedImageIndex === 0}
         >
-          ⬅️ Anterior
+          ← Anterior
         </button>
         <span>
           {selectedImageIndex + 1} / {totalImages}
         </span>
         <button
           className="nav-btn"
-          disabled={selectedImageIndex >= totalImages - 1}
           onClick={() => onChangeImage(selectedImageIndex + 1)}
+          disabled={selectedImageIndex === totalImages - 1}
         >
-          Siguiente ➡️
+          Siguiente →
         </button>
       </div>
-
-      {/* Replicar anterior */}
-      <button
-        className="apply-btn"
-        onClick={handleReplicatePrevious}
-        disabled={selectedImageIndex <= 0}
-      >
-        🔁 Replicar anterior
-      </button>
     </div>
   );
 };
