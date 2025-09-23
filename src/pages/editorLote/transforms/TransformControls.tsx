@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import type TransformValues from "../../../services/Interface/trasnforms";
 import "./TransformControls.css";
 import FormatSelector from "../../../components/editor/extra/FormatSelector";
@@ -11,6 +11,19 @@ interface TransformControlsProps {
   savedTransform?: TransformValues;
 }
 
+const INITIAL_VALUES: TransformValues = {
+  brightness: 0,
+  contrast: 0,
+  saturation: 0,
+  rotation: 0,
+  format: "JPG",
+  grayscale: 0,
+  blur: 0,
+  sharpen: 0,
+  crop: { width: 0, height: 0 },
+  watermark: { text: "", x: 0, y: 0 },
+};
+
 const TransformControls: React.FC<TransformControlsProps> = ({
   selectedImageIndex,
   totalImages,
@@ -19,48 +32,33 @@ const TransformControls: React.FC<TransformControlsProps> = ({
   savedTransform,
 }) => {
   const [values, setValues] = useState<TransformValues>(
-    savedTransform || {
-      brightness: 0,
-      contrast: 0,
-      saturation: 0,
-      rotation: 0,
-      format: "JPG",
-      grayscale: 0,
-      blur: 0,
-      sharpen: 0,
-      crop: { width: 0, height: 0 },
-      watermark: { text: "", x: 0, y: 0 },
-    }
+    savedTransform || INITIAL_VALUES
   );
 
-  // Sincroniza estado cuando llega un nuevo savedTransform
+  // Sincroniza si savedTransform cambia externamente
   useEffect(() => {
-    setValues(
-      savedTransform || {
-        brightness: 0,
-        contrast: 0,
-        saturation: 0,
-        rotation: 0,
-        format: "JPG",
-        grayscale: 0,
-        blur: 0,
-        sharpen: 0,
-        crop: { width: 0, height: 0 },
-        watermark: { text: "", x: 0, y: 0 },
-      }
-    );
+    if (savedTransform) setValues(savedTransform);
+    else setValues(INITIAL_VALUES);
   }, [savedTransform]);
 
   const updateValue = (key: keyof TransformValues, val: any) => {
     setValues((prev) => ({ ...prev, [key]: val }));
   };
 
-  //  Notifica al padre en cada cambio de cualquier valor
+  // Debounce para evitar llamar al padre en cada cambio
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+
   useEffect(() => {
-    onTransformChange(values);
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+
+    timeoutRef.current = setTimeout(() => {
+      onTransformChange(values); // guarda solo después de X ms
+    }, 1000); // <-- ajusta a 500, 2000, 5000 ms según necesites
+
+    return () => {
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    };
   }, [values, onTransformChange]);
-
-
  
   return (
     <div className="transform-controls">

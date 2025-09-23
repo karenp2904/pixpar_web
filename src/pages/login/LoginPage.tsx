@@ -68,7 +68,11 @@ const LoginPage: React.FC = () => {
   }
 
   // Guardar sesión con token y datos de usuario
-  authService.saveSession(res.token || "", res.user || { name: "", email }, remember);
+  authService.saveSession(
+    res.token || "",
+    res.user || { firstName: "", lastName: "", email },
+    remember
+  );
 
   navigate("/editor");
 };
