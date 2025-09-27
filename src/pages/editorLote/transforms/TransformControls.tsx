@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import type TransformValues from "../../../services/Interface/trasnforms";
+import type TransformValues from "../../../services/Interface/transform";
 import "./TransformControls.css";
 import FormatSelector from "../../../components/editor/extra/FormatSelector";
 
@@ -251,7 +251,7 @@ const TransformControls: React.FC<TransformControlsProps> = ({
       <div className="format-wrapper">
         <h4>Formato de Salida</h4>
         <FormatSelector
-          selectedFormat={values.format}
+          selectedFormat={values.format ?? "JPG"}
           onChange={(fmt) => updateValue("format", fmt)}
         />
       </div>

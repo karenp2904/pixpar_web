@@ -5,6 +5,7 @@ import "../style/batchImageSelector.css";
 export interface SelectedImage {
   id: string;
   src: string;
+  file: File; //  nuevo
 }
 
 interface BatchImageSelectorProps {
@@ -12,6 +13,7 @@ interface BatchImageSelectorProps {
 }
 
 const BatchImageSelector: React.FC<BatchImageSelectorProps> = ({ onSelect }) => {
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
 
@@ -19,6 +21,7 @@ const BatchImageSelector: React.FC<BatchImageSelectorProps> = ({ onSelect }) => 
     const newImages: SelectedImage[] = files.map((file) => ({
       id: uuidv4(),
       src: URL.createObjectURL(file),
+      file,
     }));
 
     onSelect(newImages);

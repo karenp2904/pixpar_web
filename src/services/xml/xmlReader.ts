@@ -1,64 +1,42 @@
-export interface ImageInfo {
-  id?: string;
-  formato?: string;
-  transformaciones?: string;
-  total_transformaciones?: number;
-  fecha_generacion?: string;
-  tamaño_original?: string;
-  tamaño_final?: string;
-  datos_b64?: string | null;
+interface SOAPResponse {
+  status: string;
+  taskId: string;
+  xmlResult: string;
+  tiempoProceso?: number;
+  nodoProcesado?: string;
+  attempts?: number;
 }
 
-export class XMLReader {
-  private xmlContent: string;
-  private parser: DOMParser;
-  private xmlDoc: Document;
+export function parseSoapResponse(soapText: string): SOAPResponse {
+  const parser = new DOMParser();
+  const xmlDoc = parser.parseFromString(soapText, "text/xml");
 
-  constructor(xmlContent: string) {
-    this.xmlContent = xmlContent;
-    this.parser = new DOMParser();
-    const parsed = this.parser.parseFromString(xmlContent, "application/xml");
+  // Namespace tns
+  const tnsNS = "http://servidor.procesamiento.imagenes/soap";
 
-    // Validar si hubo error de parseo
-    const parseError = parsed.querySelector("parsererror");
-    if (parseError) {
-      throw new Error(`Error al parsear XML: ${parseError.textContent}`);
-    }
-
-    this.xmlDoc = parsed;
+  // Helper para buscar por tag name con namespace
+  function getText(tag: string): string | null {
+    const elems = xmlDoc.getElementsByTagNameNS(tnsNS, tag);
+    return elems.length > 0 ? elems[0].textContent : null;
   }
 
-  getImagesInfo(): ImageInfo[] {
-    const imagenes: ImageInfo[] = [];
-    const nodes = this.xmlDoc.getElementsByTagName("imagen");
+  const status = getText("status");
+  const taskId = getText("task_id");
+  const xmlResult = getText("xml_result");
+  const tiempoProceso = getText("tiempo_proceso");
+  const nodoProcesado = getText("nodo_procesado");
+  const attempts = getText("attempts");
 
-    for (let i = 0; i < nodes.length; i++) {
-      const node = nodes[i];
-      imagenes.push({
-        id: node.getAttribute("id") || undefined,
-        formato: node.getAttribute("formato") || undefined,
-        transformaciones: node.getAttribute("transformaciones") || undefined,
-        total_transformaciones: node.getAttribute("total_transformaciones")
-          ? parseInt(node.getAttribute("total_transformaciones")!)
-          : undefined,
-        fecha_generacion: node.getAttribute("fecha_generacion") || undefined,
-        tamaño_original: node.getAttribute("tamaño_original") || undefined,
-        tamaño_final: node.getAttribute("tamaño_final") || undefined,
-        datos_b64: node.textContent || null,
-      });
-    }
-
-    return imagenes;
+  if (!status || !taskId || !xmlResult) {
+    throw new Error(`SOAP inválido o incompleto: ${soapText}`);
   }
 
-  resumen(): string {
-    const info = this.getImagesInfo();
-    let resumen = `📊 Total de imágenes procesadas: ${info.length}\n`;
-    info.forEach((img, i) => {
-      resumen += `🖼️ Imagen ${i + 1} (${img.formato ?? "?"}): ${
-        img.total_transformaciones ?? 0
-      } transformaciones → ${img.transformaciones ?? "Ninguna"}\n`;
-    });
-    return resumen;
-  }
+  return {
+    status,
+    taskId,
+    xmlResult,
+    tiempoProceso: tiempoProceso ? parseFloat(tiempoProceso) : undefined,
+    nodoProcesado: nodoProcesado || undefined,
+    attempts: attempts ? parseInt(attempts) : undefined,
+  };
 }

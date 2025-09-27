@@ -6,7 +6,11 @@ import "./BatchEditor.css";
 import type { SelectedImage } from "../../components/editor/extra/BatchImageSelector";
 import SelectedGallery from "../../components/editor/extra/SelectedGallery";
 import transformService from "../../services/transformService";
-import type TransformValues from "../../services/Interface/trasnforms";
+import type TransformValues from "../../services/Interface/transform";
+import { saveTransformsService, exportTransformsService } from "../../services/buttons/editorActions";
+import { Icon } from "@iconify/react";
+import {   imageFileToGzipBase64,  } from "../../services/tools_transform/fileBase64";
+
 
 const BatchEditor: React.FC = () => {
   const [images, setImages] = useState<SelectedImage[]>([]);
@@ -16,6 +20,7 @@ const BatchEditor: React.FC = () => {
   const [serverResponse, setServerResponse] = useState<string | null>(null);
 
   const selectedImage = images[selectedImageIndex] || null;
+  
 
   /** Selección inicial de imágenes */
   const handleImageSelection = (newImages: SelectedImage[]) => {
@@ -50,16 +55,23 @@ const BatchEditor: React.FC = () => {
 
   /** Aplica solo a la imagen actual */
   const handleApplyCurrent = async () => {
-    if (!selectedImage) return;
+    if (!selectedImage || !selectedImage.file) return;
+
     try {
       setIsSending(true);
       setServerResponse(null);
+      
+  
+    // Extraer el formato (ej: JPEG, PNG)
+    const formato = selectedImage.file.type.split("/")[1]?.toUpperCase() || "JPEG";
 
-      const xmlText = await transformService.applyTransformForImage(
-        selectedImage.id,
-        transformations[selectedImage.id] // pasar transformaciones actuales
-      );
-      setServerResponse(xmlText);
+    // Llamada al servicio con la imagen optimizada
+    const xmlText = await transformService.applyTransformForImage(selectedImage.id, {
+      base64: await imageFileToGzipBase64(selectedImage?.file), // ya optimizada
+      formato,
+      transform: transformations[selectedImage.id],
+    });
+
     } catch (error) {
       console.error("❌ Error al aplicar transformaciones:", error);
       setServerResponse("<error>No se pudo aplicar la transformación</error>");
@@ -74,21 +86,51 @@ const BatchEditor: React.FC = () => {
       setIsSending(true);
       setServerResponse(null);
 
-      // ✅ Genera lista de imágenes con sus transformaciones
-      const payload = images.map((img) => ({
-        id: img.id,
-        src: img.src,
-        transform: transformations[img.id] || null,
-      }));
+      // Convertimos cada imagen a base64 optimizada y extraemos el formato
+      const payload = await Promise.all(
+        images
+          .filter((img) => img.file)
+          .map(async (img) => {
+         
+            const formato = img.file!.type.split("/")[1]?.toUpperCase() || "JPEG";
 
+            return {
+              id: img.id,
+              base64: await imageFileToGzipBase64(selectedImage.file),
+              formato,
+              transform: transformations[img.id] ?? {},
+            };
+          })
+      );
+
+      // Enviar todas las imágenes al servicio
       const xmlText = await transformService.applyAllTransforms(payload);
-      setServerResponse(xmlText);
+     
+
+      // Limpiar transformaciones locales
       setTransformations({});
     } catch (error) {
       console.error("❌ Error al enviar transformaciones:", error);
       setServerResponse("<error>No se pudieron aplicar las transformaciones</error>");
     } finally {
       setIsSending(false);
+    }
+  };
+
+
+
+
+   const handleSave = async () => {
+    await saveTransformsService();
+    alert("✅ Transformaciones guardadas correctamente.");
+  };
+
+  const handleExport = async () => {
+    try {
+      await exportTransformsService();
+      alert("📤 Exportación completada.");
+    } catch {
+      alert("❌ Hubo un problema al exportar.");
     }
   };
 
@@ -105,30 +147,25 @@ const BatchEditor: React.FC = () => {
           savedTransform={selectedImage ? transformations[selectedImage.id] : undefined}
         />
 
-        {images.length > 0 && (
-          <div className="actions">
-            <button
-              className="apply-btn"
-              onClick={handleApplyCurrent}
-              disabled={isSending || !selectedImage}
-            >
-              {isSending ? "⏳ Aplicando..." : "Aplicar a imagen actual"}
-            </button>
+        <div className="actions">
+          <button
+            className="apply-btn"
+            onClick={handleApplyCurrent}
+            disabled={!selectedImage}
+          >
+            {isSending ? "⏳ Aplicando..." : "Aplicar a imagen actual"}
+          </button>
 
-            <button
-              className="apply-btn"
-              onClick={handleApplyAll}
-              disabled={isSending}
-            >
-              {isSending ? "⏳ Aplicando..." : "Aplicar a todas las imágenes"}
-            </button>
-          </div>
-        )}
+          <button
+            className="apply-btn"
+            onClick={handleApplyAll}
+            disabled={images.length === 0}
+          >
+            {isSending ? "⏳ Aplicando..." : "Aplicar a todas las imágenes"}
+          </button>
+        </div>
 
-        {/* === RESPUESTA DEL SERVIDOR === */}
-        {serverResponse && (
-          <pre className="server-response">{serverResponse}</pre>
-        )}
+
       </div>
 
       {/* === PANEL CENTRAL === */}
@@ -147,9 +184,26 @@ const BatchEditor: React.FC = () => {
           }
           onRemove={handleRemoveImage}
         />
+
+      <div className="action-buttons">
+        <button className="navbar-button navbar-button-ghost" onClick={handleSave}>
+          <Icon icon="lucide:save" className="mr-2" />
+          Guardar
+        </button>
+
+        <button className="navbar-button navbar-button-primary" onClick={handleExport}>
+          <Icon icon="lucide:download" className="mr-2" />
+          Exportar
+        </button> 
+      </div>
+
+        
+    
       </div>
     </div>
   );
 };
 
 export default BatchEditor;
+
+

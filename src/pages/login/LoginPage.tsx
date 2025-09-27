@@ -74,7 +74,7 @@ const LoginPage: React.FC = () => {
     remember
   );
 
-  navigate("/editor");
+  navigate("/editorLote");
 };
 
   const goToRegister = () => {

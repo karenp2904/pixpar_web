@@ -85,14 +85,35 @@ body, html {
   border-radius: 10px;
   padding: 0.6rem 1rem;
   color: #f3f4f6;
-  font-weight: 600;
+  font-weight: 500;
   cursor: pointer;
   text-align: center;
   transition: all 0.2s ease;
-  margin-top: 1rem;
 }
 
 .final-apply-btn:hover {
-  background: linear-gradient(135deg, #8b5cf6, #60a5fa);
+  background: linear-gradient(135deg, #60a5fa, #c084fc);
   transform: translateY(-2px);
+}
+
+.actions {
+  display: flex;          /* pone los botones en fila */
+  gap: 1rem;              /* espacio entre botones */
+  justify-content: flex-start; /* alineación a la izquierda */     /* espacio arriba si quieres */
+}
+
+.apply-btn {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 6px;
+  background: linear-gradient(135deg, #60a5fa, #c084fc);/* ejemplo degradado */
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.apply-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
