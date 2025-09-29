@@ -1,8 +1,11 @@
+import { AuthPreferences } from "./LocalStorage/AuthPreferences";
+
 export interface AuthResponse {
   ok: boolean;
   message?: string;
   token?: string;
   user?: {
+    id?: number;
     firstName: string;
     lastName: string;
     email: string;
@@ -12,7 +15,7 @@ export interface AuthResponse {
 }
 
 class AuthService {
-  private API_BASE = "http://10.153.90.72:5000/api/auth"; // backend
+  private API_BASE = "http://10.152.168.25:5000/api/auth"; // backend
 
   async login(email: string, password: string): Promise<AuthResponse> {
     try {
@@ -25,8 +28,20 @@ class AuthService {
       if (!res.ok) {
         return { ok: false, message: `Error ${res.status}: ${res.statusText}` };
       }
-
-      return await res.json();
+        const resUser= await res.json();
+        console.log("Respuesta del login:", resUser);
+        if(resUser.user){
+          AuthPreferences.saveUser(
+                    {
+                      id: resUser.user.id,
+                      name: `${resUser.user.first_name} ${resUser.user.last_name}`, //  Concatenado correctamente
+                      email: resUser.user.email,
+                    },
+                    resUser.access_token //  Pasa el token
+            ); 
+          resUser.ok=true; 
+        }
+      return resUser;
     } catch (error) {
       console.error("Error en login:", error);
       return { ok: false, message: "No se pudo conectar con el servidor" };
@@ -58,39 +73,11 @@ class AuthService {
       return await res.json();
     } catch (error) {
       console.error("Error en registro:", error);
-      return { ok: false, message: "No se pudo conectar con el servidor" };
+      return { ok: false, message: "No se pudo conectar con el servidor"  };
     }
   }
 
-  saveSession(
-    token: string,
-    user: { firstName: string; lastName: string; email: string },
-    remember: boolean
-  ) {
-    const sessionData = JSON.stringify({
-      token,
-      user,
-      time: new Date().toISOString(),
-    });
-
-    if (remember) {
-      localStorage.setItem("pixpar_session", sessionData);
-    } else {
-      sessionStorage.setItem("pixpar_session", sessionData);
-    }
-  }
-
-  logout() {
-    localStorage.removeItem("pixpar_session");
-    sessionStorage.removeItem("pixpar_session");
-  }
-
-  getSession() {
-    const session =
-      localStorage.getItem("pixpar_session") ||
-      sessionStorage.getItem("pixpar_session");
-    return session ? JSON.parse(session) : null;
-  }
+  
 }
 
 export default new AuthService();

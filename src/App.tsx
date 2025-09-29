@@ -8,6 +8,7 @@ import PricingSection from "./components/pricing-section/PricingSection";
 import RegisterPage from "./pages/Register/register";
 import { SelectorTypeEdition } from "./pages/typeEditor/selectorEdition";
 import BatchEditor from "./pages/editorLote/BatchEditor";
+import ProjectsWindow from "./pages/historial/ProjectsWindow";
 
 const App: React.FC = () => {
   return (
@@ -22,7 +23,10 @@ const App: React.FC = () => {
           <Route path="/features" element={<FeaturesSection />} />
           <Route path="/typeEdition" element={<SelectorTypeEdition />} />
           <Route path="/editorLote" element={<BatchEditor />} />
-          <Route path="/prices" element={<PricingSection />} />
+          <Route path="/projects" element={<ProjectsWindow userId="mock-user-123" 
+          onOpenProject={function (id: string): void {
+          throw new Error("Function not implemented.");
+        } } />} />
           <Route path="/about" element={<div className="p-8 text-center">Acerca de</div>} />
 
           {/* 404 dentro del mismo layout */}

@@ -133,17 +133,26 @@
   cursor: not-allowed;
 }
 
-/* spinner simple */
 .spinner {
+  display: inline-block; /* ✅ Para que se ubique en línea con el texto */
   width: 14px;
   height: 14px;
   border-radius: 50%;
-  border: 2px solid rgba(255,255,255,0.25);
+  border: 2px solid rgba(255, 255, 255, 0.25);
   border-top-color: white;
   animation: spin 1s linear infinite;
+  margin-right: 0px; /* ✅ Espacio entre el spinner y el texto */
+  vertical-align: middle; /* ✅ Centrado en relación al texto */
 }
 
-@keyframes spin { to { transform: rotate(360deg); } }
+
+
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
 
 /* divider */
 .divider {

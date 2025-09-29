@@ -3,32 +3,9 @@ import { useNavigate } from "react-router-dom";
 import "./LoginPage.css";
 import { Icon } from "@iconify/react";
 import authService from "../../services/userService"; // importa el servicio
+import Notification from "../../components/notification/Notificacion"; // importa el componente
 
-// Simulación de servidor: login
-const fakeAuth = async (email: string, password: string) => {
-  return new Promise<{ ok: boolean; message?: string }>((resolve) => {
-    setTimeout(() => {
-      if (email === "demo@pixpar.com" && password === "password") {
-        resolve({ ok: true });
-      } else {
-        resolve({ ok: false, message: "Correo o contraseña incorrectos" });
-      }
-    }, 900);
-  });
-};
 
-// Simulación de servidor: registro (puedes dejarlo si lo usas en otra parte)
-const fakeRegister = async (email: string, password: string) => {
-  return new Promise<{ ok: boolean; message?: string }>((resolve) => {
-    setTimeout(() => {
-      if (email === "demo@pixpar.com") {
-        resolve({ ok: false, message: "El correo ya está registrado" });
-      } else {
-        resolve({ ok: true });
-      }
-    }, 1000);
-  });
-};
 
 const LoginPage: React.FC = () => {
   const navigate = useNavigate();
@@ -38,6 +15,8 @@ const LoginPage: React.FC = () => {
   const [remember, setRemember] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const [notification, setNotification] = useState<{ message: string; type: "success" | "error" | "info" | "warning" } | null>(null);
+
 
   const validate = (): string | null => {
     if (!email) return "Ingresa tu correo";
@@ -50,32 +29,35 @@ const LoginPage: React.FC = () => {
   };
 
   const handleLogin = async (e: React.FormEvent) => {
-  e.preventDefault();
-  setError(null);
-  const v = validate();
-  if (v) {
-    setError(v);
-    return;
-  }
+    e.preventDefault();
+    setError(null);
+    const v = validate();
+    if (v) {
+      setNotification({ message: v, type: "error" });
+      return;
+    }
 
-  setLoading(true);
-  const res = await authService.login(email.trim(), password);
-  setLoading(false);
+    setLoading(true);
+    const res = await authService.login(email.trim(), password);
+    setLoading(false);
 
-  if (!res.ok) {
-    setError(res.message || "Error de autenticación");
-    return;
-  }
+    if (!res.message) {
+      setNotification({ message: "Error de autenticación", type: "error" });
+      return;
+    }
 
-  // Guardar sesión con token y datos de usuario
-  authService.saveSession(
-    res.token || "",
-    res.user || { firstName: "", lastName: "", email },
-    remember
-  );
+    if (!res.user || !res.user.id) {
+      setNotification({ message: "Datos de usuario incompletos", type: "error" });
+      return;
+    }
 
-  navigate("/editorLote");
-};
+    if(res.message){
+      setNotification({ message: "Inicio de sesión exitoso 🎉", type: "success" });
+
+    }
+    
+    navigate("/editorLote");
+  };
 
   const goToRegister = () => {
     navigate("/register"); //  ruta de registro
@@ -177,6 +159,14 @@ const LoginPage: React.FC = () => {
           </div>
         </form>
       </div>
+
+      {notification && (
+        <Notification
+          message={notification.message}
+          type={notification.type}
+          onClose={() => setNotification(null)}
+        />
+      )}
     </div>
   );
 };
