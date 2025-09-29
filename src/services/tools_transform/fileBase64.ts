@@ -43,3 +43,26 @@ export async function imageFileToGzipBase64(file: File, maxWidth = 800, quality 
     for (let i = 0; i < compressed.length; i++) binary += String.fromCharCode(compressed[i]);
     return btoa(binary);
 }
+
+//para el cliente
+export async function decompressGzipBase64(base64String: string): Promise<string> {
+  // 1️⃣ Decodificar base64 → bytes comprimidos
+  const binaryString = atob(base64String);
+  const binaryLength = binaryString.length;
+  const compressedBytes = new Uint8Array(binaryLength);
+  for (let i = 0; i < binaryLength; i++) {
+    compressedBytes[i] = binaryString.charCodeAt(i);
+  }
+
+  // 2️⃣ Descomprimir usando pako
+  const decompressedBytes = pako.ungzip(compressedBytes);
+
+  // 3️⃣ Convertir bytes de nuevo a Base64
+  let binary = "";
+  for (let i = 0; i < decompressedBytes.length; i++) {
+    binary += String.fromCharCode(decompressedBytes[i]);
+  }
+
+  return btoa(binary); // 👈 ESTA es tu imagen lista para usar en <img>
+}
+

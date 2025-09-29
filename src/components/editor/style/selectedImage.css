@@ -12,6 +12,7 @@
   height: auto;
   aspect-ratio: 1 / 1; /* mantiene forma cuadrada si es posible */
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    background: #1e1e1e; /* Ejemplo: gris oscuro */
 }
 
 /* Imagen que se adapta al contenedor */
@@ -21,6 +22,7 @@
   border-radius: 10px;
   object-fit: contain; /* mantiene proporciones sin deformar */
   display: block;
+    background: #1e1e1e; /* Ejemplo: gris oscuro */
 }
 
 

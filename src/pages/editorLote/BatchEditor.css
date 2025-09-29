@@ -40,6 +40,7 @@
   align-items: center;
   justify-content: center;
   background: #1e1e1e;
+  background: #1e1e1e; /* Ejemplo: gris oscuro */
   border-radius: 12px;
   padding: 1.5rem; /* 🔥 más espacio interior para la imagen */
   overflow: hidden;
@@ -52,6 +53,7 @@
   border-radius: 12px;
   box-shadow: 0 0 14px rgba(0,0,0,0.7);
   transition: transform 0.2s ease;
+    background: #1e1e1e; /* Ejemplo: gris oscuro */
 }
 
 .center-panel img:hover {

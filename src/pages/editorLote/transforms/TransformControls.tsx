@@ -70,7 +70,7 @@ const TransformControls: React.FC<TransformControlsProps> = ({
           <label>Brillo</label>
           <input
             type="range"
-            min={-100}
+            min={0}
             max={100}
             value={values.brightness}
             onChange={(e) => updateValue("brightness", Number(e.target.value))}
@@ -86,7 +86,7 @@ const TransformControls: React.FC<TransformControlsProps> = ({
           <label>Contraste</label>
           <input
             type="range"
-            min={-100}
+            min={0}
             max={100}
             value={values.contrast}
             onChange={(e) => updateValue("contrast", Number(e.target.value))}
@@ -105,7 +105,7 @@ const TransformControls: React.FC<TransformControlsProps> = ({
           <label>Saturación</label>
           <input
             type="range"
-            min={-100}
+            min={0}
             max={100}
             value={values.saturation}
             onChange={(e) => updateValue("saturation", Number(e.target.value))}
@@ -156,8 +156,8 @@ const TransformControls: React.FC<TransformControlsProps> = ({
           <label>Rotación</label>
           <input
             type="range"
-            min={-180}
-            max={180}
+            min={-360}
+            max={360}
             value={values.rotation}
             onChange={(e) => updateValue("rotation", Number(e.target.value))}
           />

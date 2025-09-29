@@ -1,11 +1,11 @@
 import type TransformValues from "./Interface/transform";
 import { buildSoapTransformXML } from "./xml/xmlBuilder";
-import { mapToEnglish, mapToSpanish } from "./tools_transform/mapInterface";
+import { buildTransformacionesString, mapToEnglish, mapToSpanish } from "./tools_transform/mapInterface";
 import { fetchXmlAsJson } from "./tools_transform/xmlClient";
 import { parseImagenesProcesadas } from "./tools_transform/transformParser";
 import { parseSoapResponse } from "./xml/xmlReader";
 
-const SERVER_URL = "http://10.152.190.14:5001";
+const SERVER_URL = "http://192.168.1.9:5001";
 
 class TransformService {
   private transforms: Record<string, TransformValues> = {};
@@ -39,24 +39,28 @@ class TransformService {
   ) {
     const transform = payload.transform || this.transforms[id];
     if (!transform) throw new Error(`No hay transformaciones para la imagen ${id}`);
+    const spanishTransform = mapToSpanish(transform);
 
     const mapped = {
-      ...mapToSpanish(transform),
-      base64: payload.base64 ,
+      ...spanishTransform,
+      transformaciones: buildTransformacionesString(spanishTransform),
+      base64: payload.base64,
       formato: payload.formato,
     };
-  
 
-    console.log(` Enviando transform para [${id}] (con base64):`, mapped);
+    console.log(`Enviando transform para [${id}] (con base64):`, mapped);
 
-    const soapXML = await buildSoapTransformXML({ [id]: mapped }, {
-      prioridad: 3,
-      tipo_servicio: "procesamiento_batch",
-      formato_salida: mapped.formato,
-      calidad: mapped.nitidez ?? 85,
-      poll_interval: 3.0,
-      max_attempts: 30,
-    });
+    const soapXML = await buildSoapTransformXML(
+      { [id]: mapped },
+      {
+        prioridad: 3,
+        tipo_servicio: "procesamiento_batch",
+        formato_salida: mapped.formato,
+        calidad: mapped.nitidez ?? 85,
+        poll_interval: 3.0,
+        max_attempts: 30,
+      }
+);
 
     
     console.log(soapXML); 
@@ -84,9 +88,9 @@ class TransformService {
     const parser = parseSoapResponse(responseText);
 
     console.log(`✅ Task ID recibido: ${parser.taskId}`);
-  
+    console.log(`✅ Detalles: ${parser.xmlResult}`); //base64 transformada
 
-    return parser;
+    return parser.xmlResult;
 
   }
 
@@ -183,8 +187,9 @@ class TransformService {
     // Si quieres, puedes parsear el XML a objeto JS
     const parser = parseSoapResponse(responseText);
 
-    console.log(`✅ Task ID recibido: ${parser}`);
-  
+    console.log(`✅ Task ID recibido: ${parser.taskId}`);
+    console.log(`✅ Task ID recibido: ${parser.imagenes}`);
+
 
     return parser;
 
