@@ -12,17 +12,39 @@ interface TransformControlsProps {
 }
 
 const INITIAL_VALUES: TransformValues = {
-  brightness: 0,
+  brightness: 0,       // Nivel normal (0–200)
   contrast: 0,
   saturation: 0,
   rotation: 0,
-  format: "JPG",
-  grayscale: 0,
+  format: "jpg",
   blur: 0,
+
   sharpen: 0,
-  crop: { width: 0, height: 0 },
-  watermark: { text: "", x: 0, y: 0 },
+  grayscale: false,       // Ahora es boolean
+
+  flipHorizontal: false,  // Reflejar horizontalmente
+  flipVertical: false,    // Reflejar verticalmente
+
+  resize: {
+    width: 0,
+    height: 0,
+  },
+
+  crop: {
+    left: 0,
+    top: 0,
+    right: 0,
+    bottom: 0,
+  },
+
+  watermark: {
+    text: "",
+    x: 0,
+    y: 0,
+  },
 };
+
+
 
 const TransformControls: React.FC<TransformControlsProps> = ({
   selectedImageIndex,
@@ -35,15 +57,19 @@ const TransformControls: React.FC<TransformControlsProps> = ({
     savedTransform || INITIAL_VALUES
   );
 
-  // Sincroniza si savedTransform cambia externamente
-  useEffect(() => {
-    if (savedTransform) setValues(savedTransform);
-    else setValues(INITIAL_VALUES);
-  }, [savedTransform]);
 
-  const updateValue = (key: keyof TransformValues, val: any) => {
-    setValues((prev) => ({ ...prev, [key]: val }));
+  const updateValue = (
+    key: keyof TransformValues,
+    value: any,
+    extra?: Partial<TransformValues>
+  ) => {
+    setValues((prev) => ({
+      ...prev,
+      ...extra,
+      [key]: value,
+    }));
   };
+
 
   // Debounce para evitar llamar al padre en cada cambio
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -106,7 +132,7 @@ const TransformControls: React.FC<TransformControlsProps> = ({
           <input
             type="range"
             min={0}
-            max={100}
+            max={10}
             value={values.saturation}
             onChange={(e) => updateValue("saturation", Number(e.target.value))}
           />
@@ -122,7 +148,7 @@ const TransformControls: React.FC<TransformControlsProps> = ({
           <input
             type="range"
             min={0}
-            max={100}
+            max={10}
             value={values.sharpen}
             onChange={(e) => updateValue("sharpen", Number(e.target.value))}
           />
@@ -141,7 +167,7 @@ const TransformControls: React.FC<TransformControlsProps> = ({
           <input
             type="range"
             min={0}
-            max={20}
+            max={10}
             value={values.blur}
             onChange={(e) => updateValue("blur", Number(e.target.value))}
           />
@@ -169,38 +195,160 @@ const TransformControls: React.FC<TransformControlsProps> = ({
         </div>
       </div>
 
+      {/* Sección: Reflejar */}
+      <div className="inline-group">
+        <h3>Reflejar</h3>
+
+        <div className="transform-toggles">
+          {/* Reflejar Horizontal */}
+          <button
+            className={`toggle-btn ${values.flipHorizontal ? "active" : ""}`}
+            onClick={() =>
+              updateValue("flipHorizontal", !values.flipHorizontal, {
+                flipVertical: false,
+              })
+            }
+          >
+            <span>↔</span> Horizontal
+          </button>
+
+          {/* Reflejar Vertical */}
+          <button
+            className={`toggle-btn ${values.flipVertical ? "active" : ""}`}
+            onClick={() =>
+              updateValue("flipVertical", !values.flipVertical, {
+                flipHorizontal: false,
+              })
+            }
+          >
+            <span>↕</span> Vertical
+          </button>
+        </div>
+      </div>
+
+      {/* Sección: Escala de grises */}
+      <div className="inline-group">
+        <h3>Escala de Grises</h3>
+
+        <div className="switch-control">
+          <label className="switch">
+            <input
+              type="checkbox"
+              checked={values.grayscale ?? false}
+              onChange={(e) => updateValue("grayscale", e.target.checked)}
+            />
+            <span className="slider"></span>
+          </label>
+          <span className="label-text">Activar</span>
+        </div>
+      </div>
+
+
+
       {/* === Crop XY / WH === */}
-      <h3>Recorte</h3>
-   
+      <h3>Redimensionar</h3>
 
       <div className="inline-group">
         <div className="control">
           <label>W</label>
           <input
             type="number"
-            value={values.crop?.width ?? 0}
+            min={1}
+            value={values.resize?.width ?? 0}
             onChange={(e) =>
-              updateValue("crop", {
-                ...values.crop,
+              updateValue("resize", {
+                ...values.resize,
                 width: Number(e.target.value),
               })
             }
           />
         </div>
+
         <div className="control">
           <label>H</label>
           <input
             type="number"
-            value={values.crop?.height ?? 0}
+            min={1}
+            value={values.resize?.height ?? 0}
             onChange={(e) =>
-              updateValue("crop", {
-                ...values.crop,
+              updateValue("resize", {
+                ...values.resize,
                 height: Number(e.target.value),
               })
             }
           />
         </div>
       </div>
+
+      {/* recortar*/  }
+      <h3>Recorte</h3>
+
+      {/* Primera fila: Left y Top */}
+      <div className="inline-group">
+        <div className="control">
+          <label>Izquierda</label>
+          <input
+            type="number"
+            min={0}
+            value={values.crop?.left ?? 0}
+            onChange={(e) =>
+              updateValue("crop", {
+                ...values.crop,
+                left: Number(e.target.value),
+              })
+            }
+          />
+        </div>
+
+        <div className="control">
+          <label>Arriba</label>
+          <input
+            type="number"
+            min={0}
+            value={values.crop?.top ?? 0}
+            onChange={(e) =>
+              updateValue("crop", {
+                ...values.crop,
+                top: Number(e.target.value),
+              })
+            }
+          />
+        </div>
+      </div>
+
+      {/* Segunda fila: Right y Bottom */}
+      <div className="inline-group">
+        <div className="control">
+          <label>Derecha</label>
+          <input
+            type="number"
+            min={0}
+            value={values.crop?.right ?? 0}
+            onChange={(e) =>
+              updateValue("crop", {
+                ...values.crop,
+                right: Number(e.target.value),
+              })
+            }
+          />
+        </div>
+
+        <div className="control">
+          <label>Abajo</label>
+          <input
+            type="number"
+            min={0}
+            value={values.crop?.bottom ?? 0}
+            onChange={(e) =>
+              updateValue("crop", {
+                ...values.crop,
+                bottom: Number(e.target.value),
+              })
+            }
+          />
+        </div>
+      </div>
+
 
       {/* === Marca de Agua === */}
       <h3>Marca de Agua</h3>

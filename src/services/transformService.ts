@@ -47,7 +47,7 @@ class TransformService {
       base64: payload.base64,
       formato: payload.formato,
     };
-
+    
     console.log(`Enviando transform para [${id}] (con base64):`, mapped);
 
     const soapXML = await buildSoapTransformXML(
@@ -90,7 +90,7 @@ class TransformService {
     console.log(`✅ Task ID recibido: ${parser.taskId}`);
     console.log(`✅ Detalles: ${parser.xmlResult}`); //base64 transformada
 
-    return parser.xmlResult;
+    return parser;
 
   }
 
@@ -181,18 +181,45 @@ class TransformService {
 
     if (!response.ok) throw new Error(`Error del servidor: ${response.status}`);
 
-    const responseText = await response.text(); // leer como texto
-    console.log("📥 Respuesta SOAP:", responseText);
+    const responseText = await response.text();
+  console.log("📥 Respuesta SOAP completa:", responseText.slice(0, 500)); // solo muestra los primeros 500 chars
 
-    // Si quieres, puedes parsear el XML a objeto JS
+  try {
+    // Parsear el XML SOAP
     const parser = parseSoapResponse(responseText);
 
-    console.log(`✅ Task ID recibido: ${parser.taskId}`);
-    console.log(`✅ Task ID recibido: ${parser.imagenes}`);
+    // Verificar que la respuesta sea válida
+    if (!parser || !parser.status) {
+      console.error("❌ Respuesta SOAP inválida o incompleta:", parser);
+      throw new Error("No se pudo procesar la respuesta SOAP.");
+    }
 
+    // Loguear los resultados
+    console.log(`✅ Estado: ${parser.status}`);
+    console.log(`🆔 Task ID: ${parser.taskId}`);
+    console.log(`🕒 Tiempo de proceso: ${parser.tiempoProceso ?? "N/A"} seg`);
+    console.log(`💻 Nodo: ${parser.nodoProcesado ?? "Desconocido"}`);
+
+    if (parser.imagenes && parser.imagenes.length > 0) {
+      console.log("Imágenes procesadas:");
+      parser.imagenes.forEach((img, i) => {
+        console.log(`  [${i}] Formato: ${img.formato}, Transformaciones: ${img.transformaciones.join(", ")}`);
+      });
+    } else {
+      console.warn("⚠️ No se encontraron imágenes procesadas en la respuesta SOAP.");
+    }
 
     return parser;
 
+  } catch (error) {
+    console.error("❌ Error al procesar la respuesta SOAP:", error);
+    return {
+      status: "error",
+      taskId: "unknown",
+      xmlResult: responseText,
+      imagenes: [],
+    };
+  }
   }
 
   /**

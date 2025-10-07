@@ -75,107 +75,141 @@ const BatchEditor: React.FC = () => {
 
 
 
+/** Aplica solo a la imagen actual */
+const handleApplyCurrent = async () => {
+  if (!selectedImage || !selectedImage.file) return;
 
-  /** Aplica solo a la imagen actual */
-  const handleApplyCurrent = async () => {
-    if (!selectedImage || !selectedImage.file) return;
+  try {
+    setIsSending(true);
 
-    try {
-      setIsSending(true);
-
-      const formato =
+    const formato =
       transformations[selectedImage.id]?.format?.toUpperCase() ||
       selectedImage.file.type.split("/")[1]?.toUpperCase() ||
       "JPG";
-      console.log("Respuesta formatoo:",  transformations[selectedImage.id]?.format?.toUpperCase());
-      console.log("Respuesta formato:", formato);
 
-      const imageBase64 = await transformService.applyTransformForImage(selectedImage.id, {
-        base64: await imageFileToGzipBase64(selectedImage.file),
-        formato,
-        transform: transformations[selectedImage.id],
-      });
+    console.log("🧩 Formato seleccionado:", formato);
 
-      
-      console.log("Respuesta Base64:", imageBase64);
-      
-      const decompressedBase64 = await decompressGzipBase64(imageBase64);
+    const response = await transformService.applyTransformForImage(selectedImage.id, {
+      base64: await imageFileToGzipBase64(selectedImage.file),
+      formato,
+      transform: transformations[selectedImage.id],
+    });
 
+    console.log("🧩 Respuesta del servidor (parser):", response);
 
-
-      // Mostrar en pantalla
-      setTransformedImageUrl(`data:image/${formato.toLowerCase()};base64,${decompressedBase64}`);
-      setTransformedImages(prev => ({
-        ...prev,
-        [selectedImage.id]: `data:image/${formato.toLowerCase()};base64,${decompressedBase64}`,
-      }));
-      // Guardar en localStorage
-      TransformXmlStorage.saveToLocalStorage(transformations, imageBase64);
-
-      console.log("✅ XML guardado en localStorage.");
-    } catch (error) {
-      console.error("❌ Error al aplicar transformaciones:", error);
-      setServerResponse("<error>No se pudo aplicar la transformación</error>");
-    } finally {
-      setIsSending(false);
+    // 🔹 Verificar si hay imágenes procesadas
+    const imagenProcesada = response?.imagenes?.[0];
+    if (!imagenProcesada) {
+      throw new Error("No se encontró ninguna imagen procesada en la respuesta");
     }
-  };
+
+    // 🔹 Obtener Base64 procesado
+    const base64Procesada = imagenProcesada.base64 || imagenProcesada.base64;
+    if (!base64Procesada) {
+      throw new Error("No se encontró contenido Base64 en la imagen procesada");
+    }
+
+    // 🔹 Descomprimir si está comprimida
+    const decompressedBase64 = await decompressGzipBase64(
+      base64Procesada.split(",").pop() || base64Procesada
+    );
+
+    // 🔹 Generar nueva URL para mostrar la imagen
+    const nuevaUrl = `data:image/${formato.toLowerCase()};base64,${decompressedBase64}`;
+
+    // 🔹 Actualizar estado local
+    setTransformedImageUrl(nuevaUrl);
+    setTransformedImages((prev) => ({
+      ...prev,
+      [selectedImage.id]: nuevaUrl,
+    }));
+    
+
+    // 🔹 Guardar en almacenamiento local
+    TransformXmlStorage.saveToLocalStorage(transformations, base64Procesada);
+
+    console.log("✅ Transformación aplicada, guardada y mostrada correctamente.");
+  } catch (error) {
+    console.error("❌ Error al aplicar transformaciones:", error);
+    setServerResponse("<error>No se pudo aplicar la transformación</error>");
+  } finally {
+    setIsSending(false);
+  }
+};
+
+
 
 
   /** Aplica todas las transformaciones y manda lista de imágenes + transformaciones */
-  /** Aplica todas las transformaciones y manda lista de imágenes + transformaciones */
- const handleApplyAll = async () => {
+const handleApplyAll = async () => { 
   try {
     setIsSending(true);
     setServerResponse(null);
 
-    // 1️⃣ Preparamos payload
     const payload = await Promise.all(
-      images.filter(img => img.file).map(async img => {
-        const formato = img.file!.type.split("/")[1]?.toUpperCase() || "JPEG";
-        console.log("Preparando imagen:", img.id, "Formato:", formato);
-        return {
-          id: img.id,
-          base64: await imageFileToGzipBase64(img.file!),
-          formato,
-          transform: transformations[img.id] ?? {},
-        };
-      })
+      images
+        .filter((img) => img.file)
+        .map(async (img) => {
+          const formato = img.file!.type.split("/")[1]?.toUpperCase() || "JPEG";
+          return {
+            id: img.id,
+            base64: await imageFileToGzipBase64(img.file!),
+            formato,
+            transform: transformations[img.id] ?? {},
+          };
+        })
     );
 
-    // 2️⃣ Llamada al servicio
     const parser = await transformService.applyAllTransforms(payload);
+    console.log("🧩 Respuesta applyAll:", parser.imagenes);
 
-    if (parser.imagenes?.length) {
+    if (parser && Array.isArray(parser.imagenes) && parser.imagenes.length > 0) {       
       const nuevasImagenes: Record<string, string> = {};
 
-      for (const img of parser.imagenes) {
-        const decompressed = await decompressGzipBase64(img.base64);
-        nuevasImagenes[img.id ?? crypto.randomUUID()] =
-          `data:image/${img.formato.toLowerCase()};base64,${decompressed}`;
-      }
+      const imagenesActualizadas = await Promise.all(
+          images.map(async (img, index) => {
+            
+            const transformada = parser.imagenes?.[index];
 
-      setTransformedImages(prev => ({
-        ...prev,
-        ...nuevasImagenes,
-      }));
+            if (transformada?.base64) {
+              const decompressed = await decompressGzipBase64(
+                transformada.base64.split(",").pop() || transformada.base64
+              );
 
-      console.log("Respuesta transformaciones en lote:", parser);
+              const nuevaSrc = `data:image/${transformada.formato.toLowerCase()};base64,${decompressed}`;
+              nuevasImagenes[img.id] = nuevaSrc;
 
-      // 3️⃣ Guardar en localStorage la transformada de la imagen seleccionada
-      if (selectedImage) {
-        const img = parser.imagenes.find(i => i.id === selectedImage.id);
-        if (img) {
-          TransformXmlStorage.saveToLocalStorage(transformations, img.base64);
-          setTransformedImageUrl(
-            `data:image/${img.formato.toLowerCase()};base64,${await decompressGzipBase64(img.base64)}`
-          );
+              const blob = await (await fetch(nuevaSrc)).blob();
+              const nuevoFile = new File(
+                [blob],
+                img.file?.name || `transformada-${img.id}.${transformada.formato.toLowerCase()}`,
+                { type: blob.type }
+              );
+
+              return { ...img, src: nuevaSrc, file: nuevoFile };
+            }
+
+            return img;
+          })
+        );
+
+
+        // 🔹 Reemplazar el array completo de imágenes
+        setImages(imagenesActualizadas);
+
+        // 🔹 Actualizar el diccionario de imágenes transformadas
+        setTransformedImages((prev) => ({ ...prev, ...nuevasImagenes }));
+
+        // 🔹 Refrescar la imagen central seleccionada si corresponde
+        if (selectedImage && nuevasImagenes[selectedImage.id]) {
+          setTransformedImageUrl(nuevasImagenes[selectedImage.id]);
         }
+
+        console.log("✅ Todas las imágenes fueron reemplazadas correctamente con base64 transformado");
       }
 
-      // 4️⃣ Reiniciar transformaciones si corresponde
-      setTransformations({});
-    }
+
+    
   } catch (error) {
     console.error("❌ Error al enviar transformaciones:", error);
     setServerResponse("<error>No se pudieron aplicar las transformaciones</error>");
@@ -183,6 +217,7 @@ const BatchEditor: React.FC = () => {
     setIsSending(false);
   }
 };
+
 
 
 
@@ -269,8 +304,15 @@ const handleExport = async () => {
           totalImages={images.length}
           onChangeImage={(newIndex) => {
             setSelectedImageIndex(newIndex);
-            setTransformedImageUrl(null);
+            //  No reseteamos transformedImageUrl si ya existe en transformedImages
+            const newImg = images[newIndex];
+            if (!transformedImages[newImg.id]) {
+              setTransformedImageUrl(null);
+            } else {
+              setTransformedImageUrl(transformedImages[newImg.id]);
+            }
           }}
+
           onTransformChange={(newTransform) => handleTransformChange(newTransform)}
           savedTransform={selectedImage ? transformations[selectedImage.id] : undefined}
         />
@@ -300,9 +342,12 @@ const handleExport = async () => {
 
       {/* === PANEL CENTRAL === */}
       <div className="center-panel">
-         {selectedImage ? (
-        <img
-          src={transformedImageUrl ?? selectedImage.src}
+        {selectedImage ? (
+         <img
+          src={
+            transformedImages[selectedImage?.id]
+            ?? selectedImage?.src
+          }
           alt="Imagen seleccionada"
           style={{ maxWidth: "100%", maxHeight: "500px", borderRadius: "12px" }}
         />

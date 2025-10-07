@@ -1,11 +1,11 @@
-import React, { useState } from "react";
+import React, { useState } from "react"; 
 import { v4 as uuidv4 } from "uuid";
-import "../style/batchImageSelector.css";
+import "../style/BatchImageSelector.css";
 
 export interface SelectedImage {
   id: string;
   src: string;
-  file: File; //  nuevo
+  file: File;
 }
 
 interface BatchImageSelectorProps {
@@ -13,6 +13,7 @@ interface BatchImageSelectorProps {
 }
 
 const BatchImageSelector: React.FC<BatchImageSelectorProps> = ({ onSelect }) => {
+  const [allImages, setAllImages] = useState<SelectedImage[]>([]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
@@ -24,7 +25,13 @@ const BatchImageSelector: React.FC<BatchImageSelectorProps> = ({ onSelect }) => 
       file,
     }));
 
-    onSelect(newImages);
+    // ✅ anexar, no reemplazar
+    const updatedImages = [...allImages, ...newImages];
+    setAllImages(updatedImages);
+    onSelect(updatedImages);
+
+    // opcional: limpiar el input para permitir volver a subir los mismos archivos
+    e.target.value = "";
   };
 
   return (

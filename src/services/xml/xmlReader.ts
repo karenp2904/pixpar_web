@@ -17,7 +17,7 @@ interface SOAPResponse {
 
 export function parseSoapResponse(soapText: string): SOAPResponse {
   const parser = new DOMParser();
-  const xmlDoc = parser.parseFromString(soapText, "text/xml");
+  const xmlDoc = parser.parseFromString(soapText.trim(), "text/xml");
 
   const tnsNS = "http://servidor.procesamiento.imagenes/soap";
   function getText(tag: string): string | null {
@@ -27,24 +27,30 @@ export function parseSoapResponse(soapText: string): SOAPResponse {
 
   const status = getText("status");
   const taskId = getText("task_id");
-  const xmlResult = getText("xml_result");
   const tiempoProceso = getText("tiempo_proceso");
   const nodoProcesado = getText("nodo_procesado");
   const attempts = getText("attempts");
 
-  if (!status || !taskId || !xmlResult) {
+  // 🔍 Obtener el elemento completo <tns:xml_result>
+  const xmlResultElem = xmlDoc.getElementsByTagNameNS(tnsNS, "xml_result")[0];
+  if (!status || !taskId || !xmlResultElem) {
     throw new Error(`SOAP inválido o incompleto: ${soapText}`);
   }
 
-  // ✅ Parsear el xmlResult para extraer las imágenes
+  // ✅ Extraer el XML interno como string
+  const innerXml = new XMLSerializer()
+    .serializeToString(xmlResultElem)
+    .replace(/^<[^>]+>|<\/[^>]+>$/g, ""); // quita las etiquetas <tns:xml_result> y </tns:xml_result>
+
+  // ✅ Parsear el contenido interno de xml_result
   const imagenes: ImagenProcesada[] = [];
   try {
-    const resultDoc = parser.parseFromString(xmlResult, "text/xml");
+    const resultDoc = parser.parseFromString(innerXml.trim(), "text/xml");
     const imagenNodes = resultDoc.getElementsByTagName("imagen");
 
     for (let i = 0; i < imagenNodes.length; i++) {
-      const id = (i + 1).toString(); // Asumimos IDs secuenciales si no hay atributo
       const node = imagenNodes[i];
+      const id = (i + 1).toString();
       const formato = node.getAttribute("formato") ?? "DESCONOCIDO";
       const transformaciones =
         node.getAttribute("transformaciones")?.split(",").map(t => t.trim()) ?? [];
@@ -52,14 +58,15 @@ export function parseSoapResponse(soapText: string): SOAPResponse {
 
       imagenes.push({ id, formato, transformaciones, base64 });
     }
+    console.log("📸 Imágenes procesadas:", imagenes);
   } catch (err) {
-    console.warn("No se pudo parsear xmlResult:", err);
+    console.warn("⚠️ No se pudo parsear xml_result:", err);
   }
 
   return {
     status,
     taskId,
-    xmlResult,
+    xmlResult: innerXml,
     imagenes,
     tiempoProceso: tiempoProceso ? parseFloat(tiempoProceso) : undefined,
     nodoProcesado: nodoProcesado || undefined,
