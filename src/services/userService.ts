@@ -15,7 +15,7 @@ export interface AuthResponse {
 }
 
 class AuthService {
-  private API_BASE = "http://10.152.168.25:5000/api/auth"; // backend
+  private API_BASE = "http://10.152.190.78:5000/api/auth"; // backend
 
   async login(email: string, password: string): Promise<AuthResponse> {
     try {

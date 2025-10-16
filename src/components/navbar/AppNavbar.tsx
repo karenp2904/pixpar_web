@@ -34,6 +34,7 @@ const AppNavbar: React.FC = () => {
     { href: "/home", label: "Inicio" },
     { href: "/features", label: "Características" },
     { href: "/projects", label: "Proyectos" },
+    { href: "/pricing", label: "Planes" },
     { href: "/editorLote", label: "Editor" }
   ];
 

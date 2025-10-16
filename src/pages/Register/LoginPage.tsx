@@ -129,7 +129,9 @@ const LoginPage: React.FC = () => {
             <button
               type="button"
               className="link-btn"
-            
+              onClick={() =>
+                alert("Funcionalidad de recuperar contraseña (demo)")
+              }
             >
               ¿Olvidaste tu contraseña?
             </button>

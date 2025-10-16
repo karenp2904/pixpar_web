@@ -1,0 +1,172 @@
+/* =============================
+   PIXPAR COMMUNITY RESOURCES
+   ============================= */
+
+.resources-section {
+  background: linear-gradient(180deg, #0a0a0f 0%, #0d0d14 100%);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 2rem;
+  padding: 3rem 2rem;
+  color: #f3f4f6;
+  overflow: hidden;
+}
+
+/* Animación de entrada sutil */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Sección izquierda (galería comunidad) */
+.community-gallery-section {
+  flex: 2;
+  display: flex;
+  flex-direction: column;
+  animation: fadeInUp 0.8s ease forwards;
+  height: 90%;
+ /* 🔽 Límite visual + equilibrio */
+  height: 85vh;
+  max-height: 85vh;
+  justify-content: flex-start;
+}
+
+/* Scroll interno para la galería dentro */
+.community-gallery-section .community-grid {
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 0.4rem;
+  scrollbar-width: thin;
+  scrollbar-color: #7c3aed #12121c;
+  max-height: 70vh; /* evita que crezca más allá del card */
+}
+
+.community-gallery-section .community-grid::-webkit-scrollbar {
+  width: 6px;
+}
+.community-gallery-section .community-grid::-webkit-scrollbar-track {
+  background: transparent;
+}
+.community-gallery-section .community-grid::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #7c3aed, #60a5fa);
+  border-radius: 10px;
+}
+
+/* Sección derecha (historial y términos) */
+.community-side-section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  animation: fadeInUp 1s ease forwards;
+  margin-bottom: 20px;
+}
+
+/* Tarjeta base estilo pixpar */
+.pixpar-card {
+  background: rgba(28, 28, 34, 0.8);
+  border: 1px solid rgba(243, 244, 246, 0.08);
+  border-radius: 1rem;
+  padding: 1.75rem;
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  max-height: 90%;
+}
+
+.pixpar-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.05),
+    transparent
+  );
+  transition: left 0.6s ease;
+}
+
+.pixpar-card:hover::before {
+  left: 100%;
+}
+
+.pixpar-card:hover {
+  border-color: rgba(96, 165, 250, 0.3);
+  transform: translateY(-4px);
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+}
+
+/* Botones principales */
+.pixpar-btn {
+  background: linear-gradient(to right, #60a5fa, #c084fc);
+  border: none;
+  border-radius: 0.75rem;
+  padding: 0.75rem 1.5rem;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.3s ease;
+  text-align: center;
+}
+
+.pixpar-btn:hover {
+  transform: scale(1.03);
+  box-shadow: 0 0 20px rgba(192, 132, 252, 0.4);
+}
+
+/* Botón secundario */
+.pixpar-btn-secondary {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(243, 244, 246, 0.1);
+  color: #d1d5db;
+  border-radius: 0.75rem;
+  padding: 0.75rem 1.5rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.pixpar-btn-secondary:hover {
+  background: rgba(96, 165, 250, 0.15);
+  color: white;
+  border-color: rgba(96, 165, 250, 0.3);
+}
+
+/* Títulos internos */
+.resources-title {
+  background: linear-gradient(to right, #60a5fa, #c084fc);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .resources-section {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .community-gallery-section,
+  .community-side-section {
+    width: 100%;
+    max-width: 800px;
+  }
+}

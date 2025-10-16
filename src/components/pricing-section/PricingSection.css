@@ -1,55 +1,29 @@
 @reference "tailwindcss";
 
-/* ======== SECCIÓN ======== */
-.pricing-section {
+/* ======== CONTENEDOR PRINCIPAL ======== */
+.pricing-page-container {
   background: linear-gradient(to bottom, #0a0a0f, #1c1c22);
-  padding: 2rem 1rem; /* 🔽 reducido */
   color: #f3f4f6;
-  height: 100vh; /* ocupa toda la pantalla */
+  min-height: 100vh;              
   display: flex;
+  justify-content: center;        
+  align-items: center;            
   flex-direction: column;
-  justify-content: space-between;
+  box-sizing: border-box;
+  margin: 0;
+  margin-top: -10px;
+  padding: 2rem 1rem;
 }
 
-
-
-.pricing-features {
-  display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
-  font-size: 0.85rem;
-  margin: 0.5rem 0;
-  flex-grow: 1;
-  overflow: hidden; /* evita que se salga del card */
-}
-
-.pricing-plan-name {
-  font-size: 1.1rem;
-  font-weight: 700;
-  margin-bottom: 0.25rem;
-}
-
-.pricing-price {
-  font-size: 1.5rem;
-  font-weight: 800;
-  margin: 0.25rem 0;
-}
-
-
-.pricing-container {
-  max-width: 1100px; /* 🔽 más compacto */
-  margin: 0 auto;
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-}
-
-/* ======== TITULO ======== */
-.pricing-title {
-  font-size: 1.75rem; /* 🔽 reducido */
-  font-weight: 800;
+/* ======== CABECERA ======== */
+.pricing-header {
   text-align: center;
-  margin-bottom: 0.25rem;
+  margin-bottom: 1rem;
+}
+
+.pricing-title {
+  font-size: 1.75rem;
+  font-weight: 800;
   background: linear-gradient(135deg, #60a5fa, #c084fc, #4ade80);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -57,19 +31,22 @@
 
 .pricing-subtitle {
   color: rgba(243, 244, 246, 0.75);
-  font-size: 1rem; /* 🔽 reducido */
+  font-size: 1rem;
   max-width: 480px;
   margin: 0.25rem auto 1rem auto;
-  text-align: center;
 }
 
 /* ======== GRID ======== */
 .pricing-grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 1rem; /* 🔽 reducido */
-  flex-grow: 1;
-  align-items: stretch;
+  gap: 2rem;
+  justify-items: center;        /* <-- CENTRA los cards en el eje horizontal */
+  align-items: start;           /* <-- Mantiene altura visual equilibrada */
+  width: 100%;
+  max-width: 1000px;            /* Limita el ancho total para que no se desborde */
+  margin: 0 auto;
+  padding: 1rem;
 }
 
 @media (min-width: 768px) {
@@ -89,58 +66,81 @@
   border: 1px solid rgba(243, 244, 246, 0.1);
   backdrop-filter: blur(10px);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
-  height: 360px; /* altura fija para evitar scroll */
-  max-height: 360px;
+  height: 380px;
+  width: 300px;
+  max-height: 380px;
 }
+
 .pricing-card:hover {
   transform: translateY(-4px);
   box-shadow: 0 8px 20px rgba(96, 165, 250, 0.15);
 }
 
-.pricing-card.featured {
-  border: 2px solid #60a5fa;
-  background: rgba(28, 28, 34, 0.95);
+/* Colores de borde superior */
+.border-blue {
+  border-top: 3px solid #60a5fa;
 }
 
-/* ======== PLAN INFO ======== */
-.pricing-plan-name {
-  font-size: 1.1rem; /* 🔽 reducido */
+.border-green {
+  border-top: 3px solid #4ade80;
+}
+
+.border-purple {
+  border-top: 3px solid #c084fc;
+}
+
+/* ======== ENCABEZADO DEL CARD ======== */
+.pricing-card-header h3 {
+  font-size: 1.1rem;
   font-weight: 700;
 }
 
-.pricing-plan-description {
+.pricing-card-header p {
   font-size: 0.9rem;
   color: rgba(243, 244, 246, 0.75);
   margin-bottom: 0.5rem;
-  line-height: 1.5; /* 👈 interlineado elegante */
+  line-height: 1.5;
 }
 
-/* ======== PRECIO ======== */
-.pricing-price {
-  font-size: 1.5rem; /* 🔽 reducido */
+/* ======== PRECIO Y DURACIÓN ======== */
+.pricing-card-price {
+  font-size: 1.5rem;
   font-weight: 800;
   margin: 0.5rem 0;
 }
 
-.pricing-currency {
+.pricing-card-price .currency {
   font-size: 1rem;
   vertical-align: super;
 }
 
-.pricing-period {
+.pricing-card-price .period {
   font-size: 0.85rem;
   margin-left: 0.25rem;
   color: rgba(243, 244, 246, 0.7);
 }
 
-/* ======== TEXTO CON INTERLINEADO ======== */
+.price-free {
+  font-size: 1.5rem;
+  color: #4ade80;
+}
 
+.pricing-duration {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.85rem;
+  color: rgba(243, 244, 246, 0.85);
+  margin-bottom: 0.5rem;
+}
+
+/* ======== LISTA DE FEATURES ======== */
 .pricing-features {
   display: flex;
   flex-direction: column;
   gap: 0.4rem;
-  margin-top: 0.25rem;
-  margin-bottom: 0.75rem;
+  margin: 0.25rem 0 0.75rem 0;
+  font-size: 0.85rem;
   flex-grow: 1;
 }
 
@@ -148,22 +148,23 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  font-size: 0.85rem;
-  line-height: 1.4; /* 👈 mejor lectura en listas */
+  line-height: 1.4;
 }
 
-.pricing-feature-icon {
+.feature-icon {
   width: 0.85rem;
   height: 0.85rem;
   flex-shrink: 0;
+  color: #4ade80;
 }
 
 .pricing-feature.unavailable {
   color: rgba(243, 244, 246, 0.4);
   text-decoration: line-through;
 }
+
 /* ======== BOTONES ======== */
-.pricing-button {
+.pricing-btn {
   margin-top: 0.75rem;
   width: 100%;
   text-align: center;
@@ -179,10 +180,11 @@
   position: relative;
   overflow: hidden;
   backdrop-filter: blur(8px);
+  cursor: pointer;
 }
 
-.pricing-button::before {
-  content: '';
+.pricing-btn::before {
+  content: "";
   position: absolute;
   top: 0;
   left: -100%;
@@ -197,41 +199,40 @@
   transition: left 0.5s ease;
 }
 
-.pricing-button:hover::before {
+.pricing-btn:hover::before {
   left: 100%;
 }
 
-.pricing-button-primary {
+/* Estilos por tipo */
+.btn-primary {
   background: rgba(37, 99, 235, 0.15);
   border: 1px solid rgba(96, 165, 250, 0.3);
   color: #60a5fa;
 }
 
-.pricing-button-primary:hover {
+.btn-primary:hover {
   border-color: rgba(96, 165, 250, 0.5);
   transform: translateY(-2px);
 }
 
-.pricing-button-featured {
+.btn-featured {
   background: rgba(192, 132, 252, 0.15);
   border: 1px solid rgba(192, 132, 252, 0.3);
   color: #c084fc;
 }
 
-.pricing-button-featured:hover {
+.btn-featured:hover {
   border-color: rgba(192, 132, 252, 0.5);
   transform: translateY(-2px);
 }
 
-.pricing-button-secondary {
+.btn-secondary {
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.15);
   color: #f3f4f6;
 }
 
-.pricing-button-secondary:hover {
+.btn-secondary:hover {
   background: rgba(255, 255, 255, 0.08);
   transform: translateY(-2px);
 }
-
-

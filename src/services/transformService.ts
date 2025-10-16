@@ -5,7 +5,7 @@ import { fetchXmlAsJson } from "./tools_transform/xmlClient";
 import { parseImagenesProcesadas } from "./tools_transform/transformParser";
 import { parseSoapResponse } from "./xml/xmlReader";
 
-const SERVER_URL = "http://192.168.1.9:5001";
+const SERVER_URL = "http://10.152.190.63:5001";
 
 class TransformService {
   private transforms: Record<string, TransformValues> = {};

@@ -1,0 +1,71 @@
+.history-container {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+  padding: 1.5rem;
+  margin: 1rem;
+  flex: 0.6;
+  box-shadow: 0 0 12px rgba(0, 255, 204, 0.05);
+}
+
+.history-header {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #ffffff;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.history-status {
+  font-style: italic;
+  color: #ccc;
+  font-size: 0.9rem;
+}
+
+.history-content {
+  margin-top: 1rem;
+  color: #bcbcbc;
+  font-size: 0.95rem;
+}
+
+.view-terms-button {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.05);
+  border: none;
+  border-radius: 12px;
+  padding: 0.6rem;
+  color: #00c6ab;
+  margin-top: 1.5rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.view-terms-button:hover {
+  background: rgba(0, 198, 171, 0.15);
+}
+/* ======== BOTÓN LIMPIAR HISTORIAL ======== */
+.clear-history-btn {
+  padding: 0.6rem 1.2rem;
+  border-radius: 0.75rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #f3f4f6;
+  background: rgba(96, 165, 250, 0.1);
+  border: 1px solid rgba(96, 165, 250, 0.3);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(6px);
+}
+
+.clear-history-btn:hover {
+  background: rgba(96, 165, 250, 0.2);
+  border-color: rgba(96, 165, 250, 0.5);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(96, 165, 250, 0.2);
+}
+
+.clear-history-btn:active {
+  transform: scale(0.98);
+  box-shadow: 0 2px 6px rgba(96, 165, 250, 0.2);
+}

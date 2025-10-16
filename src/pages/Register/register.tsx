@@ -4,6 +4,7 @@ import "../login/LoginPage.css";
 import { Icon } from "@iconify/react";
 import authService from "../../services/userService";
 import "./register.css";
+import Notification from "../../components/notification/Notificacion"; // importa el componente
 
 const RegisterPage: React.FC = () => {
   const navigate = useNavigate();
@@ -17,43 +18,71 @@ const RegisterPage: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [notification, setNotification] = useState<{
+    message: string;
+    type: "success" | "error" | "info" | "warning";
+  } | null>(null);
 
-  const validate = () => {
-    if (!first_name.trim()) return "Ingresa tu nombre";
-    if (!last_name.trim()) return "Ingresa tu apellido";
-    if (!email.trim()) return "Ingresa tu correo";
-    const re = /\S+@\S+\.\S+/;
-    if (!re.test(email)) return "Correo inválido";
-    if (!password) return "Crea una contraseña";
-    if (password.length < 6) return "La contraseña debe tener al menos 6 caracteres";
-    if (password !== confirmPassword) return "Las contraseñas no coinciden";
-    return null;
-  };
 
-  const onSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+const validate = () => {
+  if (!first_name.trim()) return "Ingresa tu nombre";
+  if (!last_name.trim()) return "Ingresa tu apellido";
+  if (!email.trim()) return "Ingresa tu correo";
+  const re = /\S+@\S+\.\S+/;
+  if (!re.test(email)) return "Correo inválido";
+  if (!password) return "Crea una contraseña";
+  if (password.length < 6) return "La contraseña debe tener al menos 6 caracteres";
+  if (password !== confirmPassword) return "Las contraseñas no coinciden";
+  return null;
+};
+
+const onSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+
+  const validationError = validate();
+  if (validationError) {
+    setNotification({ message: validationError, type: "error" });
+    return;
+  }
+
+  try {
+    setLoading(true);
     setError(null);
 
-    const validationError = validate();
-    if (validationError) {
-      setError(validationError);
-      return;
-    }
-
-    setLoading(true);
-    const res = await authService.register(
-      {email, password , first_name, last_name, phone, address}
-    );
-    setLoading(false);
+    const res = await authService.register({
+      email,
+      password,
+      first_name,
+      last_name,
+      phone,
+      address,
+    });
 
     if (!res.ok) {
-      setError(res.message || "Error al registrar");
+      const errorMsg = res.message || "Error al registrar. Intenta de nuevo.";
+      setNotification({ message: errorMsg, type: "error" });
       return;
     }
 
-    alert("✅ Registro exitoso, ahora inicia sesión");
-    navigate("/login");
-  };
+    setNotification({
+      message: "Registro exitoso. Ahora puedes iniciar sesión.",
+      type: "success",
+    });
+
+    // Esperar un momento antes de redirigir (opcional)
+    setTimeout(() => navigate("/login"), 1500);
+
+  } catch (err) {
+    console.error(err);
+    setNotification({
+      message: "Ocurrió un error inesperado. Intenta nuevamente.",
+      type: "error",
+    });
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   return (
     <div className="login-page">
@@ -189,6 +218,14 @@ const RegisterPage: React.FC = () => {
           </div>
         </form>
       </div>
+
+       {notification && (
+        <Notification
+          message={notification.message}
+          type={notification.type}
+          onClose={() => setNotification(null)}
+        />
+      )}
     </div>
   );
 };

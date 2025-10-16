@@ -6,12 +6,6 @@ function cleanObject<T extends Record<string, any>>(obj: T): Partial<T> {
   for (const key in obj) {
     const value = obj[key];
 
-    // ⚙️ Conservamos brillo y contraste incluso si valen 0
-    if (["brillo", "contraste"].includes(key)) {
-      result[key] = value;
-      continue;
-    }
-
     if (value === 0 || value === "" || value === undefined || value === null) continue;
 
     if (typeof value === "object" && !Array.isArray(value)) {
